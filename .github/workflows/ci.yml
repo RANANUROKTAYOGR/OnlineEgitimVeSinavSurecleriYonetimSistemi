@@ -2,11 +2,19 @@ name: CI - Maven verify
 
 on:
   push:
+    branches: [ "main", "test" ]
   pull_request:
+    branches: [ "main", "test" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    # Reporter'ın PR üzerine yorum yazabilmesi için gerekli izinler
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: write
 
     steps:
       - name: Checkout
@@ -15,14 +23,23 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '21'
-          cache: maven
+          cache: 'maven'
 
       - name: Run full build & tests (including ITs)
         run: |
           chmod +x mvnw || true
           ./mvnw -B -DskipITs=false clean verify
+
+      # YENİ: Test Sonuçlarını GitHub Arayüzünde Raporla
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: always() # Testler fail etse bile raporu yayınla
+        with:
+          report_paths: '**/target/surefire-reports/*.xml'
+          annotate_only: false
+          detailed_summary: true
 
       - name: Upload Surefire reports
         if: always()
@@ -47,4 +64,3 @@ jobs:
           name: jacoco-site
           path: |
             target/site/jacoco/**
-
