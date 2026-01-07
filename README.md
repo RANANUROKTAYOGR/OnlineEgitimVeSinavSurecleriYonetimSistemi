@@ -215,17 +215,61 @@ docker run -p 8080:8080 -e DB_PASSWORD=your_password oesys
 
 ## 🔄 CI/CD Pipeline
 
-Jenkins pipeline'ı otomatik olarak:
-1. ✅ Git checkout
-2. ✅ Docker PostgreSQL başlat
-3. ✅ Derleme
-4. ✅ Birim testleri
-5. ✅ Entegrasyon testleri
-6. ✅ Uygulama başlat
-7. ✅ Selenium E2E testleri
-8. ✅ Test raporları
-9. ✅ Build
-10. ✅ Cleanup
+### GitHub Actions Webhook (Otomatik Aktif)
+✅ Her `push` ve `pull_request` için otomatik çalışır
+- Birim testleri
+- Entegrasyon testleri
+- Test raporları GitHub Actions'da görüntülenir
+
+### Jenkins Pipeline (Ngrok ile Webhook)
+
+Jenkins pipeline'ı şu aşamaları içerir:
+
+| Stage | Açıklama | Durum |
+|-------|----------|-------|
+| 🚀 Checkout | Git'ten kod çekme | ✅ |
+| 🐳 Docker Ayağa Kaldırma | PostgreSQL container başlatma | ✅ |
+| 🔧 Maven Clean | Önceki build'leri temizleme | ✅ |
+| 📦 Maven Compile | Kod derleme | ✅ |
+| 🧪 Birim Testleri | Unit testleri çalıştırma | ✅ |
+| 🔗 Entegrasyon Testleri | Integration testleri | ✅ |
+| 🌐 Selenium E2E Testleri | Web arayüzü testleri | ✅ |
+| 📊 Test Coverage | JaCoCo raporu oluşturma | ✅ |
+| 📦 Build Package | JAR dosyası oluşturma | ✅ |
+| 🐳 Docker Image | Docker image build | ✅ |
+| 🛑 Docker Cleanup | Container'ları durdurma | ✅ |
+
+### Webhook Kurulumu
+
+Detaylı webhook kurulum rehberi için:
+📄 **[WEBHOOK_SETUP_GUIDE.md](WEBHOOK_SETUP_GUIDE.md)** dosyasına bakın
+
+**Hızlı Başlangıç:**
+
+1. **Ngrok Başlatın:**
+   ```bash
+   ngrok http 8080
+   ```
+
+2. **GitHub Webhook Ekleyin:**
+   - Repository → Settings → Webhooks
+   - Payload URL: `https://YOUR-NGROK-URL.ngrok.io/github-webhook/`
+   - Content type: `application/json`
+
+3. **Test Edin:**
+   ```bash
+   git push origin main
+   ```
+
+### Test Raporlarını Görüntüleme
+
+- **GitHub Actions:** Actions sekmesinde detaylı test sonuçları
+- **Jenkins:** 
+  - JaCoCo Coverage Report - Code coverage
+  - Unit Test Report - Test sonuçları
+  - Console Output - Detaylı loglar
+
+
 
 ## 🤝 Katkıda Bulunma
 
