@@ -96,8 +96,8 @@ OESYS (Online Eğitim ve Sınav Süreçleri Yönetim Sistemi), kapsamlı bir e-�
 
 ### 1. Repository'yi Klonlayın
 ```bash
-git clone https://github.com/YOUR-USERNAME/OnlineEgitimVeSinavSurecleriYonetimSistemi.git
-cd OnlineEgitimVeSinavSurecleriYonetimSistemi
+git clone https://github.com/RANANUROKTAYOGR/OnlineEgitimVeSinavSurecleriYonetimSistemiRanaNurOKTAY.git
+cd OnlineEgitimVeSinavSurecleriYonetimSistemiRanaNurOKTAY
 ```
 
 ### 2. PostgreSQL Veritabanını Oluşturun
