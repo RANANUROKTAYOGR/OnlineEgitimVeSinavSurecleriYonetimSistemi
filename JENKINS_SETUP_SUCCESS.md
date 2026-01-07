@@ -9,6 +9,7 @@
 
 ### 2. İzin Ayarları
 - ✅ Docker socket izinleri düzenlendi: `chmod 666 /var/run/docker.sock`
+- ✅ Maven wrapper execute izni eklendi: `git update-index --chmod=+x mvnw`
 - ✅ Jenkins container yeniden başlatıldı
 
 ### 3. Test Sonuçları
@@ -18,6 +19,9 @@ Docker version 29.1.3, build f52814d
 
 $ docker exec jenkins-server docker compose version
 Docker Compose version v5.0.1
+
+$ git ls-files -s mvnw
+100755 bd8896bf2217b46faa0291585e01ac1a3441a958 0       mvnw
 ```
 
 ## 🚀 Sonraki Adımlar
@@ -30,14 +34,16 @@ Docker Compose version v5.0.1
 ### 2. Pipeline Aşamaları
 Pipeline artık şu aşamalardan sorunsuz geçmelidir:
 
-1. ✅ **Checkout** - Kod çekilir
+1. ✅ **Checkout** - Kod çekilir + Maven wrapper'a execute izni verilir
 2. ✅ **Start Docker Containers** - PostgreSQL ayağa kalkar
-3. ✅ **Unit Tests** - Birim testleri çalışır
-4. ✅ **Integration Tests** - Entegrasyon testleri çalışır
-5. ✅ **E2E Tests** - Selenium testleri çalışır
-6. ✅ **Build JAR** - Uygulama paketlenir
-7. ✅ **Generate Reports** - Raporlar oluşturulur
-8. ✅ **Stop Docker Containers** - PostgreSQL durdurulur
+3. ✅ **Maven Clean** - Önceki build artifacts temizlenir
+4. ✅ **Maven Compile** - Kaynak kod derlenir
+5. ✅ **Unit Tests** - Birim testleri çalışır
+6. ✅ **Integration Tests** - Entegrasyon testleri çalışır
+7. ✅ **E2E Tests** - Selenium testleri çalışır
+8. ✅ **Test Coverage Report** - JaCoCo raporu oluşturulur
+9. ✅ **Build Package** - JAR dosyası oluşturulur
+10. ✅ **Stop Docker Containers** - PostgreSQL durdurulur
 
 ## 📊 Beklenen Sonuç
 
@@ -91,6 +97,11 @@ docker exec -u root jenkins-server apt-get update
 docker exec -u root jenkins-server apt-get install -y docker-ce-cli docker-compose-plugin
 docker exec -u root jenkins-server chmod 666 /var/run/docker.sock
 docker restart jenkins-server
+
+# Maven Wrapper execute izni (Git'te)
+git update-index --chmod=+x mvnw
+git update-index --chmod=+x mvnw.cmd
+git commit -m "fix: Add execute permission to Maven wrapper files"
 ```
 
 ## ✨ Önemli Notlar
