@@ -55,7 +55,7 @@ on:
 
 1. **Ngrok Başlatın:**
    ```bash
-   ngrok http 8080
+   ngrok http 8181
    ```
 
 2. **Jenkins Pipeline Oluşturun:**
@@ -193,7 +193,7 @@ docker-compose -f compose.yaml up -d
 ```
 
 ### 4. Jenkins Pipeline (Manuel):
-1. Ngrok başlatın: `ngrok http 8080`
+1. Ngrok başlatın: `ngrok http 8181`
 2. GitHub webhook ekleyin
 3. Jenkins job oluşturun
 4. Push yapın: `git push origin main`

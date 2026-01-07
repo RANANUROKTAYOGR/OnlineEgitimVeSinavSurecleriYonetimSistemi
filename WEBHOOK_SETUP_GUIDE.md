@@ -2,7 +2,7 @@
 
 ## 📋 Gereksinimler
 
-- ✅ Yerel Jenkins kurulu olmalı (http://localhost:8080)
+- ✅ Yerel Jenkins kurulu olmalı (http://localhost:8181)
 - ✅ Ngrok hesabı ve kurulu yazılım
 - ✅ GitHub repository'ye admin erişimi
 
@@ -32,12 +32,12 @@ ngrok config add-authtoken YOUR_AUTH_TOKEN
 ### Jenkins için Tünel Başlatın:
 
 ```bash
-ngrok http 8080
+ngrok http 8181
 ```
 
 **Çıktı örneği:**
 ```
-Forwarding  https://abc123.ngrok.io -> http://localhost:8080
+Forwarding  https://abc123.ngrok.io -> http://localhost:8181
 ```
 
 ⚠️ **ÖNEMLİ:** `https://abc123.ngrok.io` URL'ini kopyalayın!
@@ -48,7 +48,7 @@ Forwarding  https://abc123.ngrok.io -> http://localhost:8080
 
 ### 3.1 Jenkins'te Proje Oluşturma
 
-1. Jenkins Dashboard'a gidin: `http://localhost:8080`
+1. Jenkins Dashboard'a gidin: `http://localhost:8181`
 2. **New Item** → **Pipeline** seçin
 3. Proje adı: `OESYS-Pipeline`
 4. **OK** tıklayın
@@ -119,7 +119,7 @@ git push origin main
 
 ### 5.2 Jenkins'te Kontrol:
 
-1. Jenkins Dashboard: `http://localhost:8080`
+1. Jenkins Dashboard: `http://localhost:8181`
 2. **OESYS-Pipeline** projesine gidin
 3. Yeni bir build otomatik başlamalı!
 
@@ -176,7 +176,7 @@ Jenkins → Manage Jenkins → Plugins → Available
 
 ```bash
 # Ngrok'u yeniden başlat
-ngrok http 8080
+ngrok http 8181
 # Yeni URL'yi GitHub webhook'a güncelle
 ```
 

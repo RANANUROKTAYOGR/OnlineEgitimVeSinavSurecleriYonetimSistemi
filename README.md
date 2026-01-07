@@ -246,9 +246,9 @@ Detaylı webhook kurulum rehberi için:
 
 **Hızlı Başlangıç:**
 
-1. **Ngrok Başlatın:**
+1. **Ngrok Başlatın (Jenkins için):**
    ```bash
-   ngrok http 8080
+   ngrok http 8181
    ```
 
 2. **GitHub Webhook Ekleyin:**
