@@ -164,5 +164,14 @@ public class ServiceEdgeCaseTest {
         assertThat(found.get().getScore()).isEqualTo(95.0);
         assertThat(found.get().getSubmittedAt()).isNotNull();
     }
+
+    @Test
+    public void submissionService_getById_notFound() {
+        when(submissionRepository.findById(999L)).thenReturn(Optional.empty());
+
+        Optional<Submission> found = submissionService.getById(999L);
+
+        assertThat(found).isEmpty();
+    }
 }
 
