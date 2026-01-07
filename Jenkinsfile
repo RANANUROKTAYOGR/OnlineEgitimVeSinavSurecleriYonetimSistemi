@@ -29,10 +29,10 @@ pipeline {
                 script {
                     try {
                         sh '''
-                            docker-compose -f compose.yaml down -v || true
-                            docker-compose -f compose.yaml up -d
+                            docker compose -f compose.yaml down -v || true
+                            docker compose -f compose.yaml up -d
                             sleep 10
-                            docker-compose -f compose.yaml ps
+                            docker compose -f compose.yaml ps
                         '''
                     } catch (Exception e) {
                         echo "⚠️ Docker start warning: ${e.message}"
@@ -172,7 +172,7 @@ pipeline {
                 echo '🛑 Stopping Docker containers...'
                 script {
                     try {
-                        sh 'docker-compose -f compose.yaml down -v || true'
+                        sh 'docker compose -f compose.yaml down -v || true'
                         echo '✅ Docker containerleri durduruldu!'
                     } catch (Exception e) {
                         echo "⚠️ Docker cleanup warning: ${e.message}"
