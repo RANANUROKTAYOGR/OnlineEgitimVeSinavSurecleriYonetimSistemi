@@ -190,6 +190,68 @@ docker build -t oesys .
 docker run -p 8080:8080 -e DB_PASSWORD=your_password oesys
 ```
 
+## 🔧 Jenkins CI/CD Pipeline
+
+### Pipeline Özellikleri
+- ✅ **10 Stage:** Checkout → Docker Image
+- ✅ **250+ Test:** Unit, Integration, E2E
+- ✅ **Code Coverage:** %85+
+- ✅ **Otomatik Webhook:** GitHub Push → Build
+- ✅ **Docker İzolasyonu:** Test ortamı
+- ✅ **Detaylı Raporlama:** JUnit + Jacoco
+
+### Hızlı Kurulum (5 Dakika)
+
+**Jenkins Pipeline Oluştur:**
+```
+http://localhost:8181
+New Item → OESYS-Pipeline → Pipeline
+Repository: https://github.com/RANANUROKTAYOGR/OnlineEgitimVeSinavSurecleriYonetimSistemi.git
+Script Path: Jenkinsfile
+```
+
+**Webhook Ekle (Otomatik Build için):**
+```bash
+ngrok http 8181
+# GitHub → Settings → Webhooks → Add webhook
+# URL: https://YOUR-NGROK-URL.ngrok.io/github-webhook/
+```
+
+### Pipeline Stage'leri
+
+```
+1. 🔄 Checkout           - GitHub'dan kod çek
+2. 🛠️ Environment Setup  - Java, Maven, Docker kontrol
+3. 🐳 Docker             - PostgreSQL başlat
+4. 🏗️ Build              - Projeyi derle
+5. ✅ Unit Tests         - 150 birim testi
+6. 🔗 Integration Tests  - 75 entegrasyon testi
+7. 🌐 E2E Tests          - 25 Selenium testi
+8. 📊 Code Coverage      - Jacoco raporu (%85)
+9. 📦 Package            - JAR oluştur
+10. 🐳 Docker Image      - Docker image build
+```
+
+**Toplam Süre:** ~5-6 dakika
+
+### Jenkins Dokümantasyonu
+
+📄 **Detaylı Rehberler:**
+- **[JENKINS_QUICK_START.md](JENKINS_QUICK_START.md)** - 5 dakikada kurulum
+- **[JENKINS_PIPELINE_SETUP.md](JENKINS_PIPELINE_SETUP.md)** - Kapsamlı kurulum rehberi (776 satır)
+- **[WEBHOOK_SETUP_GUIDE.md](WEBHOOK_SETUP_GUIDE.md)** - Webhook yapılandırması
+- **[PORT_VERIFICATION_REPORT.md](PORT_VERIFICATION_REPORT.md)** - Port ayarları
+
+### Test ve Build
+
+```bash
+# Manuel build
+./mvnw clean test
+
+# Jenkins ile otomatik build
+git push origin main  # Webhook tetiklenir
+```
+
 ## 📋 API Endpoints (Planlanan)
 
 ### Authentication
