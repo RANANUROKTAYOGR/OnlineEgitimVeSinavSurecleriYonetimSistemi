@@ -1,6 +1,8 @@
 # ✅ Maven Wrapper İzin Sorunu Çözüldü!
 
-## 🔴 Yaşanan Sorun
+## 🔴 Yaşanan Sorunlar
+
+### Sorun 1: Permission Denied
 
 Jenkins pipeline'da Maven wrapper çalıştırılırken şu hata alınıyordu:
 
@@ -10,16 +12,33 @@ Jenkins pipeline'da Maven wrapper çalıştırılırken şu hata alınıyordu:
 script returned exit code 126
 ```
 
-## 🔍 Sorunun Nedeni
+### Sorun 2: JAVA_HOME Not Defined
+
+Permission sorunu çözüldükten sonra:
+
+```
+./mvnw clean
+The JAVA_HOME environment variable is not defined correctly,
+this environment variable is needed to run this program.
+script returned exit code 1
+```
+
+## 🔍 Sorunların Nedenleri
+
+### Neden 1: Execute İzni Yok
 
 `mvnw` ve `mvnw.cmd` dosyalarının Git'te **execute (çalıştırma) izni** yoktu.
 
 - **Hatalı**: `100644` (okuma/yazma izinleri)
 - **Doğru**: `100755` (okuma/yazma/çalıştırma izinleri)
 
-## ✅ Uygulanan Çözüm
+### Neden 2: Jenkins Container'da JDK Yok
 
-### 1. Git'te Execute İzni Ekleme
+Jenkins container'ı `jenkins/jenkins:lts` imajından oluşturuldu ancak içinde JDK kurulu değildi. Maven wrapper'ın çalışması için JDK gerekli.
+
+## ✅ Uygulanan Çözümler
+
+### Çözüm 1: Git'te Execute İzni Ekleme
 
 ```bash
 # Maven wrapper dosyalarına execute izni ver
@@ -31,9 +50,76 @@ git ls-files -s mvnw
 # Output: 100755 bd8896bf2217b46faa0291585e01ac1a3441a958 0 mvnw ✅
 ```
 
-### 2. Jenkinsfile Güncelleme
+### Çözüm 2: Jenkins Container'a JDK 21 Kurulumu
 
-**Checkout** stage'ine Maven wrapper izni eklendi:
+#### Otomatik Kurulum (PowerShell):
+
+```powershell
+# Script'i çalıştır
+.\install-jdk-jenkins.ps1
+```
+
+#### Manuel Kurulum:
+
+```bash
+# Jenkins container ismini bul
+docker ps --filter "ancestor=jenkins/jenkins:lts" --format "{{.Names}}"
+
+# JDK 21 kur (container ismi: jenkins-server)
+docker exec -u root jenkins-server apt-get update
+docker exec -u root jenkins-server apt-get install -y openjdk-21-jdk
+
+# Java versiyonunu doğrula
+docker exec jenkins-server java -version
+
+# Jenkins'i yeniden başlat
+docker restart jenkins-server
+```
+
+#### Jenkins UI'da JDK Konfigürasyonu:
+
+1. **Jenkins'e gidin**: http://localhost:8181
+2. **Manage Jenkins** > **Tools**
+3. **JDK installations** bölümünü bulun
+4. **Add JDK** tıklayın:
+   - Name: `JDK 21`
+   - JAVA_HOME: `/usr/lib/jvm/java-21-openjdk-amd64`
+   - ⚠️ "Install automatically" seçeneğini **KALDIR**
+5. **Save**
+
+### Çözüm 3: Jenkinsfile'da JAVA_HOME Tanımlama
+
+```groovy
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven 3.9.9'
+        jdk 'JDK 21'
+    }
+
+    environment {
+        DOCKER_IMAGE = 'oesys-app'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+        JAVA_HOME = "${tool 'JDK 21'}"        // ← YENİ!
+        PATH = "${JAVA_HOME}/bin:${env.PATH}" // ← YENİ!
+    }
+
+    stages {
+        stage('☕ Verify Java') {               // ← YENİ STAGE!
+            steps {
+                sh '''
+                    echo "JAVA_HOME: $JAVA_HOME"
+                    java -version
+                '''
+            }
+        }
+        // ...diğer stage'ler
+    }
+}
+```
+
+### Çözüm 4: Checkout Stage'ine chmod Ekleme
 
 ```groovy
 stage('🚀 Checkout') {
@@ -45,16 +131,16 @@ stage('🚀 Checkout') {
             env.GIT_COMMIT_SHORT = readFile('.git/commit-id').trim()
         }
         // Maven wrapper'a execute izni ver
-        sh 'chmod +x mvnw'
+        sh 'chmod +x mvnw'  // ← YENİ!
     }
 }
 ```
 
-### 3. Değişiklikleri Commit ve Push
+### Çözüm 5: Değişiklikleri Commit ve Push
 
 ```bash
-git add Jenkinsfile mvnw mvnw.cmd
-git commit -m "fix: Add execute permission to Maven wrapper files"
+git add Jenkinsfile mvnw mvnw.cmd install-jdk-jenkins.ps1 MAVEN_WRAPPER_FIX.md
+git commit -m "fix: Add JAVA_HOME and Maven wrapper permissions"
 git push origin main
 ```
 
@@ -77,31 +163,35 @@ Pipeline artık sorunsuz çalışıyor:
    ├─ Git commit ID
    └─ chmod +x mvnw ← YENİ!
 
-2. 🐳 Docker Ayağa Kaldırma
+2. ☕ Verify Java                    ← YENİ STAGE!
+   ├─ JAVA_HOME kontrolü
+   └─ java -version
+
+3. 🐳 Docker Ayağa Kaldırma
    └─ PostgreSQL başlatma
 
-3. 🔧 Maven Clean
+4. 🔧 Maven Clean
    └─ ./mvnw clean ✅ Artık çalışıyor!
 
-4. 📦 Maven Compile
+5. 📦 Maven Compile
    └─ ./mvnw compile ✅
 
-5. 🧪 Birim Testleri
+6. 🧪 Birim Testleri
    └─ ./mvnw test ✅
 
-6. 🔗 Entegrasyon Testleri
+7. 🔗 Entegrasyon Testleri
    └─ ./mvnw verify ✅
 
-7. 🌐 Selenium E2E Testleri
+8. 🌐 Selenium E2E Testleri
    └─ ./mvnw test -Dtest=*E2E* ✅
 
-8. 📊 Test Coverage Raporu
+9. 📊 Test Coverage Raporu
    └─ ./mvnw jacoco:report ✅
 
-9. 📦 Build Package
-   └─ ./mvnw package ✅
+10. 📦 Build Package
+    └─ ./mvnw package ✅
 
-10. 🛑 Docker Durdurma
+11. 🛑 Docker Durdurma
 ```
 
 ## 🔧 Tekrar Eden Sorunlar İçin

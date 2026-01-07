@@ -9,6 +9,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'oesys-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
+        JAVA_HOME = "${tool 'JDK 21'}"
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
 
     stages {
@@ -22,6 +24,18 @@ pipeline {
                 }
                 // Maven wrapper'a execute izni ver
                 sh 'chmod +x mvnw'
+            }
+        }
+
+        stage('☕ Verify Java') {
+            steps {
+                echo '☕ Verifying Java installation...'
+                sh '''
+                    echo "JAVA_HOME: $JAVA_HOME"
+                    echo "PATH: $PATH"
+                    java -version
+                    javac -version
+                '''
             }
         }
 
