@@ -5,6 +5,7 @@ import com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.repository.QuizQue
 import com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.repository.QuizRepository;
 import com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.service.QuizService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     // Additional constructor used by some tests
+    @Autowired
     public QuizServiceImpl(QuizRepository quizRepository, QuizQuestionRepository quizQuestionRepository) {
         this.quizRepository = quizRepository;
         this.quizQuestionRepository = quizQuestionRepository;

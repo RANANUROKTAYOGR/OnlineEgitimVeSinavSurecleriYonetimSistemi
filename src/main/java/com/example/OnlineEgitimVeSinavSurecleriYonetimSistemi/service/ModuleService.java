@@ -11,5 +11,14 @@ public interface ModuleService {
     List<Module> getAll();
     Module update(Long id, Module module);
     void delete(Long id);
+
+    // Convenience method aliases
+    default List<Module> findAll() {
+        return getAll();
+    }
+
+    default Optional<Module> findById(Long id) {
+        return getById(id);
+    }
 }
 

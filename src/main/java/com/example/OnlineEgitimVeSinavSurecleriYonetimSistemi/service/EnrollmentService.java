@@ -11,5 +11,14 @@ public interface EnrollmentService {
     List<Enrollment> getAll();
     Enrollment update(Long id, Enrollment enrollment);
     void delete(Long id);
+
+    // Convenience method aliases
+    default List<Enrollment> findAll() {
+        return getAll();
+    }
+
+    default Optional<Enrollment> findById(Long id) {
+        return getById(id);
+    }
 }
 

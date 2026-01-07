@@ -12,6 +12,15 @@ public interface CourseService {
     Course update(Long id, Course course);
     void delete(Long id);
 
+    // Convenience method aliases
+    default List<Course> findAll() {
+        return getAll();
+    }
+
+    default Optional<Course> findById(Long id) {
+        return getById(id);
+    }
+
     /**
      * Calculate user's progress percentage for given course (0 - 100)
      */

@@ -1,7 +1,7 @@
 # 📚 Online Eğitim ve Sınav Süreçleri Yönetim Sistemi (OESYS)
 
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.1-brightgreen)
+![Java](https://img.shields.io/badge/Java-17-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.1-brightgreen)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
 ![Maven](https://img.shields.io/badge/Maven-3.9.12-red)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
@@ -49,13 +49,14 @@ OESYS (Online Eğitim ve Sınav Süreçleri Yönetim Sistemi), kapsamlı bir e-�
 ## 🏗️ Teknoloji Stack
 
 ### Backend
-- **Java 21** - Modern Java özellikleri
-- **Spring Boot 4.0.1** - Enterprise framework
+- **Java 17** - LTS Java version
+- **Spring Boot 3.4.1** - Enterprise framework
 - **Spring Data JPA** - ORM ve veritabanı erişimi
 - **Spring Security** - Güvenlik ve kimlik doğrulama
-- **Hibernate 7.2.0** - ORM implementasyonu
+- **Hibernate 6.x** - ORM implementasyonu
 - **PostgreSQL 15** - İlişkisel veritabanı
 - **Lombok** - Boilerplate kod azaltma
+- **Thymeleaf** - Server-side template engine
 
 ### Testing
 - **JUnit 5** - Birim testleri
@@ -89,7 +90,7 @@ OESYS (Online Eğitim ve Sınav Süreçleri Yönetim Sistemi), kapsamlı bir e-�
 ## 🚀 Kurulum
 
 ### Ön Gereksinimler
-- Java 21
+- Java 17 or higher
 - PostgreSQL 15
 - Maven 3.9+
 - Docker (opsiyonel)
