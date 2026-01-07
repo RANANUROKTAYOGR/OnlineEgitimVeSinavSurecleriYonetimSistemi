@@ -31,7 +31,18 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public Course findById(Long id) {
+        return courseRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
+    }
+
+    @Override
     public List<Course> getAll() {
+        return courseRepository.findAll();
+    }
+
+    @Override
+    public List<Course> findAll() {
         return courseRepository.findAll();
     }
 

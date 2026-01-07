@@ -28,7 +28,18 @@ public class ModuleServiceImpl implements ModuleService {
     }
 
     @Override
+    public Module findById(Long id) {
+        return moduleRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Module not found with id: " + id));
+    }
+
+    @Override
     public List<Module> getAll() {
+        return moduleRepository.findAll();
+    }
+
+    @Override
+    public List<Module> findAll() {
         return moduleRepository.findAll();
     }
 

@@ -28,7 +28,18 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
+    public Lesson findById(Long id) {
+        return lessonRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Lesson not found with id: " + id));
+    }
+
+    @Override
     public List<Lesson> getAll() {
+        return lessonRepository.findAll();
+    }
+
+    @Override
+    public List<Lesson> findAll() {
         return lessonRepository.findAll();
     }
 

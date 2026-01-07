@@ -5,6 +5,7 @@ import com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.repository.QuizQue
 import com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.repository.QuizRepository;
 import com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.service.QuizService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +22,8 @@ public class QuizServiceImpl implements QuizService {
         this.quizQuestionRepository = null;
     }
 
-    // Additional constructor used by some tests
+    // Additional constructor used by Spring
+    @Autowired
     public QuizServiceImpl(QuizRepository quizRepository, QuizQuestionRepository quizQuestionRepository) {
         this.quizRepository = quizRepository;
         this.quizQuestionRepository = quizQuestionRepository;
@@ -38,7 +40,18 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
+    public Quiz findById(Long id) {
+        return quizRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Quiz not found with id: " + id));
+    }
+
+    @Override
     public List<Quiz> getAll() {
+        return quizRepository.findAll();
+    }
+
+    @Override
+    public List<Quiz> findAll() {
         return quizRepository.findAll();
     }
 

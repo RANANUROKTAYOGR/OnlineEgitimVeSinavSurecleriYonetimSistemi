@@ -8,7 +8,9 @@ import java.util.Optional;
 public interface CourseService {
     Course create(Course course);
     Optional<Course> getById(Long id);
+    Course findById(Long id);
     List<Course> getAll();
+    List<Course> findAll();
     Course update(Long id, Course course);
     void delete(Long id);
 
