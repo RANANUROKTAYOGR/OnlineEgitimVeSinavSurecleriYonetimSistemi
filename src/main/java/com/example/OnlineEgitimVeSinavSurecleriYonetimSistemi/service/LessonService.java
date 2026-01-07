@@ -11,5 +11,14 @@ public interface LessonService {
     List<Lesson> getAll();
     Lesson update(Long id, Lesson lesson);
     void delete(Long id);
+
+    // Convenience method aliases
+    default List<Lesson> findAll() {
+        return getAll();
+    }
+
+    default Optional<Lesson> findById(Long id) {
+        return getById(id);
+    }
 }
 

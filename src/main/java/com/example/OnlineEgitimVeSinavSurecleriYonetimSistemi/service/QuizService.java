@@ -12,6 +12,15 @@ public interface QuizService {
     Quiz update(Long id, Quiz quiz);
     void delete(Long id);
 
+    // Convenience method aliases
+    default List<Quiz> findAll() {
+        return getAll();
+    }
+
+    default Optional<Quiz> findById(Long id) {
+        return getById(id);
+    }
+
     // Hesaplama metodları
     /**
      * Calculate total score for a submission answers map (questionId -> chosenChoice)

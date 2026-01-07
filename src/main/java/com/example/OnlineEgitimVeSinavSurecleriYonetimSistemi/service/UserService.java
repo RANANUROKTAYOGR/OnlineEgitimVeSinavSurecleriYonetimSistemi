@@ -11,5 +11,10 @@ public interface UserService {
     List<User> getAll();
     User update(Long id, User user);
     void delete(Long id);
+
+    // Convenience method alias for getAll()
+    default List<User> findAll() {
+        return getAll();
+    }
 }
 
