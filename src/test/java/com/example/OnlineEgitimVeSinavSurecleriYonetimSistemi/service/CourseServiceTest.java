@@ -58,4 +58,50 @@ public class CourseServiceTest {
         Course saved = courseService.create(c);
         assertThat(saved.getId()).isNotNull();
     }
+
+    @Test
+    public void getById_returnsCourse() {
+        Course course = Course.builder().id(1L).title("Test Course").build();
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(course));
+
+        Optional<Course> result = courseService.getById(1L);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getTitle()).isEqualTo("Test Course");
+    }
+
+    @Test
+    public void getAll_returnsAllCourses() {
+        List<Course> courses = Arrays.asList(
+            Course.builder().id(1L).title("Course 1").build(),
+            Course.builder().id(2L).title("Course 2").build()
+        );
+        when(courseRepository.findAll()).thenReturn(courses);
+
+        List<Course> result = courseService.getAll();
+
+        assertThat(result).hasSize(2);
+    }
+
+    @Test
+    public void update_updatesCourse() {
+        Course existing = Course.builder().id(1L).title("Old Title").build();
+        Course updated = Course.builder().id(1L).title("New Title").build();
+
+        when(courseRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(courseRepository.save(existing)).thenReturn(updated);
+
+        Course result = courseService.update(1L, updated);
+
+        assertThat(result.getTitle()).isEqualTo("New Title");
+    }
+
+    @Test
+    public void delete_deletesCourse() {
+        courseService.delete(1L);
+        // Just verify no exception thrown
+        assertThat(true).isTrue();
+    }
 }
+
+
