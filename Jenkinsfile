@@ -20,6 +20,8 @@ pipeline {
                 script {
                     env.GIT_COMMIT_SHORT = readFile('.git/commit-id').trim()
                 }
+                // Maven wrapper'a execute izni ver
+                sh 'chmod +x mvnw'
             }
         }
 
