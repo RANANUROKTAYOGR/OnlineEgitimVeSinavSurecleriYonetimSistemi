@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Ödeme</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="content-wrapper">
+                    <h1 class="mb-4 text-center"><i class="fas fa-shopping-cart me-2"></i>Ödeme</h1>
+
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h4 class="mb-3">Ödeme Bilgileri</h4>
+                            <form method="post">
+                                <div class="mb-3">
+                                    <label for="cardNumber" class="form-label">Kart Numarası</label>
+                                    <input type="text" class="form-control" id="cardNumber" name="cardNumber"
+                                           placeholder="1234 5678 9012 3456" required>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expiry" class="form-label">Son Kullanma Tarihi</label>
+                                        <input type="text" class="form-control" id="expiry" name="expiry"
+                                               placeholder="MM/YY" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cvc" class="form-label">CVC</label>
+                                        <input type="text" class="form-control" id="cvc" name="cvc"
+                                               placeholder="123" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="cardName" class="form-label">Kart Üzerindeki İsim</label>
+                                    <input type="text" class="form-control" id="cardName" name="cardName"
+                                           placeholder="AD SOYAD" required>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-lock me-2"></i>Başarılı Ödeme Yap
+                                </button>
+
+                                <p class="text-center text-muted mt-3">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    Ödemeniz güvenli SSL ile korunmaktadır
+                                </p>
+                            </form>
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Sipariş Özeti</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h6>Kurs Adı</h6>
+                                    <p class="text-muted">Tam Stack Web Development</p>
+
+                                    <hr>
+
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Ara Toplam:</span>
+                                        <span>499 TL</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2 text-success">
+                                        <span>İndirim (%40):</span>
+                                        <span>-200 TL</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>KDV (%18):</span>
+                                        <span>53.82 TL</span>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Toplam:</strong>
+                                        <strong class="h5 text-primary">352.82 TL</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <h6 class="mb-3">Güvenli Ödeme</h6>
+                                    <div class="d-flex justify-content-around">
+                                        <i class="fab fa-cc-visa fa-2x text-primary"></i>
+                                        <i class="fab fa-cc-mastercard fa-2x text-warning"></i>
+                                        <i class="fab fa-cc-amex fa-2x text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

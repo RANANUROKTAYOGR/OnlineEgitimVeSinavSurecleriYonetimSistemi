@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.title} + ' - OESYS'">Kurs Detayı - OESYS</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/6.4.2/css/all.min.css}">
+
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .course-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .course-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .module-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .module-icon {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-enroll-now {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-enroll-now:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}" style="font-weight: bold; color: var(--primary-color); font-size: 1.5rem;">
+                <i class="fas fa-graduation-cap"></i> OESYS
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home"></i> Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/courses}">
+                            <i class="fas fa-book"></i> Kurslar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Course Header -->
+            <div class="course-header">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h1 class="course-title" th:text="${course.title}">Kurs Başlığı</h1>
+                        <p class="lead" th:text="${course.description}">Kurs açıklaması</p>
+
+                        <div class="course-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-clock"></i>
+                                <span th:text="${course.durationHours} + ' saat'">12 saat</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-users"></i>
+                                <span th:text="${course.enrollments?.size()} ?: '0'">0</span> öğrenci
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-book"></i>
+                                <span th:text="${course.modules?.size()} ?: '0'">0</span> modül
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span th:text="${course.instructor?.fullName} ?: 'Eğitmen'">Eğitmen Adı</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div style="background: white; border-radius: 15px; padding: 2rem;">
+                            <div style="font-size: 3rem; font-weight: bold; color: var(--primary-color);" th:text="'₺' + ${course.price}">₺299</div>
+                            <button class="btn btn-enroll-now mt-3">
+                                <i class="fas fa-shopping-cart"></i> Hemen Kaydol
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Content -->
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- About Course -->
+                    <div class="info-card">
+                        <h3 class="info-title">
+                            <i class="fas fa-info-circle"></i> Kurs Hakkında
+                        </h3>
+                        <p th:text="${course.description}">Detaylı kurs açıklaması burada yer alacak...</p>
+                    </div>
+
+                    <!-- Course Modules -->
+                    <div class="info-card">
+                        <h3 class="info-title">
+                            <i class="fas fa-list"></i> Kurs İçeriği
+                        </h3>
+
+                        <div th:if="${course.modules != null and !course.modules.isEmpty()}">
+                            <div class="module-item" th:each="module, iterStat : ${course.modules}">
+                                <div class="module-icon">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong th:text="'Modül ' + ${iterStat.count} + ': ' + ${module.title}">Modül Başlığı</strong>
+                                    <div class="text-muted small" th:text="${module.lessons?.size()} ?: '0' + ' ders'">5 ders</div>
+                                </div>
+                                <span class="badge bg-primary" th:text="${module.orderIndex}">1</span>
+                            </div>
+                        </div>
+
+                        <div th:if="${course.modules == null or course.modules.isEmpty()}" class="text-center py-3">
+                            <p class="text-muted">Henüz modül eklenmemiş</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Course Features -->
+                    <div class="info-card">
+                        <h3 class="info-title">
+                            <i class="fas fa-star"></i> Bu Kursta Neler Var?
+                        </h3>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> Video Dersler
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> İnteraktif Quizler
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> Sınırsız Erişim
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> Sertifika
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> Mobil Uyumlu
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Instructor Info -->
+                    <div class="info-card" th:if="${course.instructor != null}">
+                        <h3 class="info-title">
+                            <i class="fas fa-chalkboard-teacher"></i> Eğitmen
+                        </h3>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                 style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="ms-3">
+                                <strong th:text="${course.instructor.fullName}">Eğitmen Adı</strong>
+                                <div class="text-muted small" th:text="${course.instructor.email}">egitmen@email.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: rgba(255, 255, 255, 0.95); padding: 2rem 0; margin-top: 3rem;">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="fas fa-graduation-cap"></i>
+                OESYS - Online Eğitim ve Sınav Süreçleri Yönetim Sistemi &copy; 2026
+            </p>
+        </div>
+    </footer>
+
+    <script th:src="@{/webjars/jquery/3.7.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
+
