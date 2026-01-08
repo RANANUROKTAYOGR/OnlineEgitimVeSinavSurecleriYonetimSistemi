@@ -64,13 +64,17 @@ public class SeleniumE2ETests {
         return driver != null && !driver.findElements(by).isEmpty();
     }
 
-    // URL oluşturma için alternatif bir yöntem kullanılabilir, ancak mevcut kodda bu uyarı kabul edildi.
-    // Deprecated uyarısı için ek açıklama eklendi
+    /**
+     * Sunucunun çalışıp çalışmadığını kontrol eder
+     */
+    @SuppressWarnings("deprecation")
     private static boolean isServerUp() {
         try {
-            URL url = new URL(SeleniumE2ETests.BASE + "/"); // Deprecated warning acknowledged
+            URL url = new URL(BASE + "/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(3000);
+            connection.setReadTimeout(3000);
             return (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
         } catch (IOException e) {
             return false;
@@ -179,7 +183,6 @@ public class SeleniumE2ETests {
         driver.get(BASE + "/courses/1/lessons/1");
         var btns = driver.findElements(By.cssSelector("button.complete-lesson"));
         if (!btns.isEmpty()) {
-            // get(0) yerine getFirst() kullanıldı
             btns.get(0).click();
             assertThat(driver.getPageSource()).contains("Tamamlandı");
         }
@@ -196,7 +199,6 @@ public class SeleniumE2ETests {
         driver.get(BASE + "/courses/1/quiz/1");
         var choices = driver.findElements(By.cssSelector("input[type='radio']"));
         if (!choices.isEmpty()) {
-            // get(0) yerine getFirst() kullanıldı
             choices.get(0).click();
             if (elementExists(By.cssSelector("button[type='submit']"))) {
                 driver.findElement(By.cssSelector("button[type='submit']")).click();
