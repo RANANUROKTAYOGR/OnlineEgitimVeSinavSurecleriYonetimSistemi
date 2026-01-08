@@ -202,40 +202,72 @@ pipeline {
         always {
             echo '📊 Pipeline tamamlandı - Raporlar hazırlanıyor...'
 
-            // Test raporlarını HTML olarak yayınla
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'target/site/jacoco',
-                reportFiles: 'index.html',
-                reportName: 'JaCoCo Coverage Report',
-                reportTitles: 'Code Coverage'
-            ])
+            script {
+                try {
+                    // Test raporlarını HTML olarak yayınla
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'target/site/jacoco',
+                        reportFiles: 'index.html',
+                        reportName: 'JaCoCo Coverage Report',
+                        reportTitles: 'Code Coverage'
+                    ])
+                    echo '✅ JaCoCo raporu yayınlandı'
+                } catch (Exception e) {
+                    echo "⚠️ JaCoCo raporu yayınlanamadı: ${e.message}"
+                }
 
-            publishHTML([
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'target/surefire-reports',
-                reportFiles: '*.html',
-                reportName: 'Unit Test Report',
-                reportTitles: 'Unit Tests'
-            ])
+                try {
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'target/surefire-reports',
+                        reportFiles: '*.html',
+                        reportName: 'Unit Test Report',
+                        reportTitles: 'Unit Tests'
+                    ])
+                    echo '✅ Unit Test raporu yayınlandı'
+                } catch (Exception e) {
+                    echo "⚠️ Unit Test raporu yayınlanamadı: ${e.message}"
+                }
+
+                // Workspace cleanup
+                try {
+                    cleanWs(
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true,
+                        patterns: [[pattern: 'target/**', type: 'INCLUDE']]
+                    )
+                    echo '🧹 Workspace temizlendi'
+                } catch (Exception e) {
+                    echo "⚠️ Workspace temizlenemedi: ${e.message}"
+                }
+            }
         }
 
         success {
             echo '✅ Pipeline başarıyla tamamlandı!'
             echo "📦 Build: ${BUILD_NUMBER}"
             echo "🔖 Commit: ${env.GIT_COMMIT_SHORT}"
+            echo "🐳 Docker Image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
+            echo "📊 Test Coverage Raporu: ${BUILD_URL}JaCoCo_Coverage_Report/"
+            echo "🧪 Test Sonuçları: ${BUILD_URL}testReport/"
         }
 
         failure {
             echo '❌ Pipeline başarısız oldu!'
+            echo "🔍 Hata detayları: ${BUILD_URL}console"
+            echo "📧 Hata bildirimi gönderilecek..."
         }
 
         unstable {
             echo '⚠️ Pipeline unstable - Bazı testler başarısız'
+            echo "🔍 Test sonuçları: ${BUILD_URL}testReport/"
+            echo "📊 Coverage raporu: ${BUILD_URL}JaCoCo_Coverage_Report/"
         }
     }
 }
