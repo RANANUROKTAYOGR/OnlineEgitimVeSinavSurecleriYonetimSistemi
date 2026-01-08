@@ -117,50 +117,26 @@ pipeline {
                 echo '🌐 Running Selenium E2E Tests...'
                 script {
                     try {
-                        // Docker compose'u tekrar başlat (önceki stage'de kapatıldıysa)
+                        echo '📍 Selenium test dosyaları kontrol ediliyor...'
+
+                        // Selenium testlerini çalıştır (Chrome headless modda)
                         sh '''
-                            docker compose -f compose.yaml ps || docker compose -f compose.yaml up -d
-                            sleep 5
+                            echo "🔍 E2E test dosyaları aranıyor..."
+                            find src/test -name "*E2E*.java" || echo "Test dosyası bulunamadı"
+
+                            echo "🚀 Selenium testleri çalıştırılıyor..."
+                            ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=true -Dsurefire.failIfNoSpecifiedTests=false || true
                         '''
-
-                        // Selenium testleri varsa çalıştır
-                        def seleniumTests = sh(script: 'find src -name "*E2E*.java" 2>/dev/null | wc -l', returnStdout: true).trim()
-
-                        if (seleniumTests.toInteger() > 0) {
-                            sh '''
-                                # Uygulamayı başlat
-                                ./mvnw spring-boot:run -DskipTests > /tmp/app.log 2>&1 &
-                                APP_PID=$!
-                                echo $APP_PID > /tmp/app.pid
-
-                                # Uygulamanın başlamasını bekle
-                                echo "Uygulama başlatılıyor..."
-                                for i in {1..30}; do
-                                    if curl -s http://localhost:8080/actuator/health > /dev/null 2>&1; then
-                                        echo "Uygulama hazır!"
-                                        break
-                                    fi
-                                    echo "Bekleniyor... ($i/30)"
-                                    sleep 2
-                                done
-
-                                # Selenium testlerini çalıştır
-                                ./mvnw test -Dtest=*E2E* -Dsurefire.failIfNoSpecifiedTests=false || true
-
-                                # Uygulamayı durdur
-                                if [ -f /tmp/app.pid ]; then
-                                    kill $(cat /tmp/app.pid) 2>/dev/null || true
-                                    rm /tmp/app.pid
-                                fi
-                            '''
-                            echo '✅ Selenium testleri başarıyla tamamlandı!'
-                        } else {
-                            echo '⚠️ Selenium test dosyası bulunamadı, atlanıyor...'
-                        }
+                        echo '✅ Selenium testleri tamamlandı!'
                     } catch (Exception e) {
                         currentBuild.result = 'UNSTABLE'
-                        echo "⚠️ Selenium testleri başarısız: ${e.message}"
+                        echo "⚠️ Selenium testleri ile ilgili uyarı: ${e.message}"
                     }
+                }
+            }
+            post {
+                always {
+                    junit testResults: '**/target/surefire-reports/TEST-*E2E*.xml', allowEmptyResults: true
                 }
             }
         }
