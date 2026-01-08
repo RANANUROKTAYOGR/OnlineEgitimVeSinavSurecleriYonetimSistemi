@@ -29,24 +29,63 @@ public class SeleniumE2ETests {
 
     @BeforeAll
     public static void setupClass() {
-        // Eğer sunucuya ulaşılamıyorsa testleri atla
+        System.out.println("=".repeat(80));
+        System.out.println("🚀 SELENIUM E2E TESTLERİ BAŞLATILIYOR...");
+        System.out.println("=".repeat(80));
+
+        // Sunucu kontrolü
+        System.out.println("🔍 Sunucu kontrolü yapılıyor: " + BASE);
         boolean reachable = isServerUp();
-        Assumptions.assumeTrue(reachable, "Uygulama çalışmıyor veya erişilemez: " + BASE);
+
+        if (!reachable) {
+            System.err.println("❌ UYARI: Uygulama çalışmıyor veya erişilemez: " + BASE);
+            System.err.println("⚠️  Lütfen uygulamayı başlatın: ./mvnw spring-boot:run");
+            Assumptions.assumeTrue(false, "Uygulama çalışmıyor: " + BASE);
+            return;
+        }
+
+        System.out.println("✅ Sunucu çalışıyor: " + BASE);
 
         try {
+            System.out.println("\n🌐 ChromeDriver kuruluyor...");
             WebDriverManager.chromedriver().setup();
+            System.out.println("✅ ChromeDriver başarıyla kuruldu");
+
             ChromeOptions options = new ChromeOptions();
-            // Headless mode KAPALI - Testleri Chrome'da görmek için
-            options.addArguments("--start-maximized");
-            options.addArguments("--disable-blink-features=AutomationControlled");
-            options.addArguments("--remote-allow-origins=*");
-            System.out.println("Starting ChromeDriver (VISIBLE MODE - Testleri görebilirsiniz)...");
+
+            // HEADLESS KAPALI - Tarayıcı tam görünür olacak
+            System.out.println("🖥️  Chrome ayarları yapılıyor (GÖRÜNÜR MOD)...");
+
+            options.addArguments("--start-maximized");                     // Tam ekran başlat
+            options.addArguments("--disable-blink-features=AutomationControlled"); // Otomasyon algılamasını kapat
+            options.addArguments("--remote-allow-origins=*");              // CORS hatalarını önle
+            options.addArguments("--disable-web-security");                // Güvenlik kontrollerini devre dışı bırak
+            options.addArguments("--disable-gpu");                         // GPU sorunlarını önle
+            options.addArguments("--no-sandbox");                          // Sandbox sorunlarını önle
+
+            // Otomasyon algılamasını devre dışı bırak
+            options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+            options.setExperimentalOption("useAutomationExtension", false);
+
+            System.out.println("✅ ChromeDriver başlatılıyor...");
+            System.out.println("👁️  CHROME TARAYICISI AÇILACAK - TESTLERİ İZLEYEBİLİRSİNİZ!");
+            System.out.println("-".repeat(80));
+
             driver = new ChromeDriver(options);
+
+            // Timeout ayarları
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+            driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
+
+            System.out.println("✅ Chrome tarayıcı başarıyla açıldı!");
+            System.out.println("=".repeat(80));
+            System.out.println();
+
         } catch (Exception ex) {
-            // Eğer driver başlatılmazsa testleri atla
-            System.err.println("ChromeDriver başlatılamadı: " + ex.getMessage());
+            System.err.println("\n❌ ChromeDriver başlatılamadı!");
+            System.err.println("Hata: " + ex.getMessage());
+            ex.printStackTrace();
             Assumptions.assumeTrue(false, "ChromeDriver başlatılamadı: " + ex.getMessage());
         }
     }
@@ -54,8 +93,19 @@ public class SeleniumE2ETests {
     @AfterAll
     public static void tearDown() {
         if (driver != null) {
+            try {
+                System.out.println("\n" + "=".repeat(80));
+                System.out.println("✅ TÜM TESTLER TAMAMLANDI!");
+                System.out.println("⏳ Sonuçları inceleyebilmeniz için 10 saniye bekleniyor...");
+                System.out.println("=".repeat(80));
+                Thread.sleep(10000); // 10 saniye bekle - sonuçları görmek için
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            System.out.println("🔒 Chrome tarayıcı kapatılıyor...");
             driver.quit();
             driver = null;
+            System.out.println("✅ Tarayıcı başarıyla kapatıldı\n");
         }
     }
 
@@ -69,11 +119,12 @@ public class SeleniumE2ETests {
     }
 
     /**
-     * Test adımlarını görebilmek için kısa bekleme
+     * Test adımlarını görebilmek için bekleme
+     * Her adımda 3 saniye bekler - testleri rahatça izleyebilirsiniz
      */
     private static void waitToSee() {
         try {
-            Thread.sleep(1500); // 1.5 saniye bekleme - testleri görmek için
+            Thread.sleep(3000); // 3 saniye bekleme - testleri görmek için
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -97,6 +148,7 @@ public class SeleniumE2ETests {
         }
     }
 
+
     // REQ-001: Ana Sayfa Yükleme
     // İlgili Gereksinimler: REQ-UI-001
     // Ön Koşullar: Uygulama çalışıyor
@@ -106,12 +158,14 @@ public class SeleniumE2ETests {
     // Son Koşullar: Tarayıcı kapatılacak
     @Test
     public void TC01_homePageLoads() {
+        System.out.println("\n🧪 TC01: Ana Sayfa Yükleme Testi");
+        System.out.println("📍 URL: " + BASE + "/");
         // USER-COMMENT: Ana sayfa başlığı null olmamalı, temel smoke testi
         driver.get(BASE + "/");
         waitToSee(); // Sayfayı görmek için bekle
         var title = driver.getTitle();
         assertThat(title).isNotNull();
-        System.out.println("✓ TC01: Ana sayfa yüklendi - Başlık: " + title);
+        System.out.println("✅ TC01: Ana sayfa yüklendi - Başlık: " + title);
     }
 
     // REQ-002: Kayıt Formu Görünümü
@@ -123,6 +177,8 @@ public class SeleniumE2ETests {
     // Son Koşullar: -
     @Test
     public void TC02_registerFormVisible() {
+        System.out.println("\n🧪 TC02: Kayıt Formu Görünürlük Testi");
+        System.out.println("📍 URL: " + BASE + "/register");
         // USER-COMMENT: Kayıt formundaki alanlar DOM'da bulunmalı
         driver.get(BASE + "/register");
         waitToSee(); // Formu görmek için bekle
@@ -130,7 +186,7 @@ public class SeleniumE2ETests {
         assertThat(driver.findElements(By.name("username")).size()).isGreaterThanOrEqualTo(1);
         assertThat(driver.findElements(By.name("email")).size()).isGreaterThanOrEqualTo(1);
         assertThat(driver.findElements(By.name("password")).size()).isGreaterThanOrEqualTo(1);
-        System.out.println("✓ TC02: Kayıt formu görünür");
+        System.out.println("✅ TC02: Kayıt formu görünür - Tüm inputlar mevcut");
     }
 
     // REQ-003: Kullanıcı Kayıt Akışı (basit)
@@ -142,19 +198,25 @@ public class SeleniumE2ETests {
     // Son Koşullar: Oluşturulan kullanıcı DB'den temizlenmedi (manüel)
     @Test
     public void TC03_registerUser() {
+        System.out.println("\n🧪 TC03: Kullanıcı Kayıt Akışı Testi");
+        System.out.println("📍 URL: " + BASE + "/register");
         // USER-COMMENT: Basit form submit testi - DB temizliği manuel
         driver.get(BASE + "/register");
         waitToSee(); // Formu görmek için bekle
         if (elementExists(By.name("username")) && elementExists(By.name("email")) && elementExists(By.name("password"))) {
+            System.out.println("📝 Kayıt formu dolduruluyor...");
             driver.findElement(By.name("username")).sendKeys("e2euser");
             waitToSee(); // Form doldurulurken görmek için
             driver.findElement(By.name("email")).sendKeys("e2e@example.com");
             driver.findElement(By.name("password")).sendKeys("P@ssw0rd");
             waitToSee(); // Submit öncesi görmek için
+            System.out.println("📤 Form gönderiliyor...");
             driver.findElement(By.cssSelector("button[type='submit']")).click();
             waitToSee(); // Yönlendirmeyi görmek için
             assertThat(driver.getCurrentUrl()).doesNotContain("/register");
-            System.out.println("✓ TC03: Kullanıcı kaydı tamamlandı");
+            System.out.println("✅ TC03: Kullanıcı kaydı tamamlandı - Yeni URL: " + driver.getCurrentUrl());
+        } else {
+            System.out.println("⚠️ TC03: Kayıt formu elemanları bulunamadı");
         }
     }
 
