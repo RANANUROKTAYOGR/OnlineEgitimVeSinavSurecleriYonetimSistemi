@@ -120,6 +120,23 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Selenium for E2E tests -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.12.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- WebDriverManager to auto-download browser drivers in CI -->
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>5.4.1</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -161,6 +178,9 @@
 					<useModulePath>false</useModulePath>
 					<includes>
 						<include>**/*Test.java</include>
+						<!-- Include E2E test naming patterns so Selenium tests are discovered -->
+						<include>**/*E2E*.java</include>
+						<include>**/*E2ETest.java</include>
 					</includes>
 				</configuration>
 			</plugin>
