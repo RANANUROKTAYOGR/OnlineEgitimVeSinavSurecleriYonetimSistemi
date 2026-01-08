@@ -22,7 +22,6 @@ pipeline {
                 script {
                     env.GIT_COMMIT_SHORT = readFile('.git/commit-id').trim()
                 }
-                // Maven wrapper'a execute izni ver
                 sh 'chmod +x mvnw'
             }
         }
@@ -112,8 +111,6 @@ pipeline {
             }
         }
 
-
-
         stage('📊 Test Coverage Raporu') {
             steps {
                 echo '📊 Generating JaCoCo Test Coverage Report...'
@@ -159,6 +156,34 @@ pipeline {
             }
         }
 
+        /* Selenium E2E Testleri Sona Alındı */
+        stage('🌐 Selenium E2E Testleri') {
+            steps {
+                echo '🌐 Running Selenium E2E Tests...'
+                script {
+                    try {
+                        echo '📍 Selenium test dosyaları kontrol ediliyor...'
+                        sh '''
+                            echo "🔍 E2E test dosyaları aranıyor..."
+                            find src/test -name "*E2E*.java" || echo "Test dosyası bulunamadı"
+
+                            echo "🚀 Selenium testleri çalıştırılıyor..."
+                            ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=true -Dsurefire.failIfNoSpecifiedTests=false || true
+                        '''
+                        echo '✅ Selenium testleri tamamlandı!'
+                    } catch (Exception e) {
+                        currentBuild.result = 'UNSTABLE'
+                        echo "⚠️ Selenium testleri ile ilgili uyarı: ${e.message}"
+                    }
+                }
+            }
+            post {
+                always {
+                    junit testResults: '**/target/surefire-reports/TEST-*E2E*.xml', allowEmptyResults: true
+                }
+            }
+        }
+
         stage('🛑 Docker Cleanup') {
             steps {
                 echo '🛑 Stopping Docker containers...'
@@ -173,42 +198,12 @@ pipeline {
             }
         }
     }
-    stage('🌐 Selenium E2E Testleri') {
-                steps {
-                    echo '🌐 Running Selenium E2E Tests...'
-                    script {
-                        try {
-                            echo '📍 Selenium test dosyaları kontrol ediliyor...'
-
-                            // Selenium testlerini çalıştır (Chrome headless modda)
-                            sh '''
-                                echo "🔍 E2E test dosyaları aranıyor..."
-                                find src/test -name "*E2E*.java" || echo "Test dosyası bulunamadı"
-
-                                echo "🚀 Selenium testleri çalıştırılıyor..."
-                                ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=true -Dsurefire.failIfNoSpecifiedTests=false || true
-                            '''
-                            echo '✅ Selenium testleri tamamlandı!'
-                        } catch (Exception e) {
-                            currentBuild.result = 'UNSTABLE'
-                            echo "⚠️ Selenium testleri ile ilgili uyarı: ${e.message}"
-                        }
-                    }
-                }
-                post {
-                    always {
-                        junit testResults: '**/target/surefire-reports/TEST-*E2E*.xml', allowEmptyResults: true
-                    }
-                }
-            }
 
     post {
         always {
             echo '📊 Pipeline tamamlandı - Raporlar hazırlanıyor...'
-
             script {
                 try {
-                    // JaCoCo raporu kontrol et
                     def jacocoReport = fileExists('target/site/jacoco/index.html')
                     if (jacocoReport) {
                         echo '✅ JaCoCo Coverage Raporu: target/site/jacoco/index.html'
@@ -220,7 +215,6 @@ pipeline {
                 }
 
                 try {
-                    // Test raporlarını kontrol et
                     def surefireReport = fileExists('target/surefire-reports')
                     if (surefireReport) {
                         echo '✅ Unit Test Raporu: target/surefire-reports/'
@@ -231,7 +225,6 @@ pipeline {
                     echo "⚠️ Unit Test raporu kontrol hatası: ${e.message}"
                 }
 
-                // Workspace cleanup
                 try {
                     cleanWs(
                         deleteDirs: true,
