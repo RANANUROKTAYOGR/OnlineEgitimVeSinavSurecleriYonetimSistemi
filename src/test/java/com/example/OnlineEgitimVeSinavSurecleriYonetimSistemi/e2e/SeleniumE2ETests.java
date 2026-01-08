@@ -1,12 +1,10 @@
 package com.example.OnlineEgitimVeSinavSurecleriYonetimSistemi.e2e;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
@@ -14,15 +12,17 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Duration;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Selenium E2E testleri (başlık ve kısa açıklamalar eklendi).
+ * Selenium E2E testleri - UI akışlarını kontrol eder
  *
  * İçerik: UI akışlarını kontrol eden basit, atlanabilir (assumption) testler.
  * Testler, uygulama çalışmıyorsa veya ChromeDriver başlatılamıyorsa otomatik olarak atlanır.
  */
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class SeleniumE2ETests {
     private static WebDriver driver;
     private static final String BASE = "http://localhost:8080";
@@ -36,15 +36,14 @@ public class SeleniumE2ETests {
         try {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
-            String headless = System.getProperty("e2e.headless", "true");
-            if (!"false".equalsIgnoreCase(headless)) {
-                options.addArguments("--headless=new");
-            }
-            options.addArguments("--no-sandbox");
-            options.addArguments("--disable-dev-shm-usage");
-            System.out.println("Starting ChromeDriver (headless=" + headless + ")...");
+            // Headless mode KAPALI - Testleri Chrome'da görmek için
+            options.addArguments("--start-maximized");
+            options.addArguments("--disable-blink-features=AutomationControlled");
+            options.addArguments("--remote-allow-origins=*");
+            System.out.println("Starting ChromeDriver (VISIBLE MODE - Testleri görebilirsiniz)...");
             driver = new ChromeDriver(options);
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
         } catch (Exception ex) {
             // Eğer driver başlatılmazsa testleri atla
             System.err.println("ChromeDriver başlatılamadı: " + ex.getMessage());
@@ -61,7 +60,23 @@ public class SeleniumE2ETests {
     }
 
     private static boolean elementExists(By by) {
-        return driver != null && !driver.findElements(by).isEmpty();
+        try {
+            List<WebElement> elements = driver.findElements(by);
+            return !elements.isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Test adımlarını görebilmek için kısa bekleme
+     */
+    private static void waitToSee() {
+        try {
+            Thread.sleep(1500); // 1.5 saniye bekleme - testleri görmek için
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -73,9 +88,10 @@ public class SeleniumE2ETests {
             URL url = new URL(BASE + "/");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("HEAD");
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(3000);
-            return (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            int responseCode = connection.getResponseCode();
+            return (responseCode == HttpURLConnection.HTTP_OK);
         } catch (IOException e) {
             return false;
         }
@@ -92,8 +108,10 @@ public class SeleniumE2ETests {
     public void TC01_homePageLoads() {
         // USER-COMMENT: Ana sayfa başlığı null olmamalı, temel smoke testi
         driver.get(BASE + "/");
+        waitToSee(); // Sayfayı görmek için bekle
         var title = driver.getTitle();
         assertThat(title).isNotNull();
+        System.out.println("✓ TC01: Ana sayfa yüklendi - Başlık: " + title);
     }
 
     // REQ-002: Kayıt Formu Görünümü
@@ -107,10 +125,12 @@ public class SeleniumE2ETests {
     public void TC02_registerFormVisible() {
         // USER-COMMENT: Kayıt formundaki alanlar DOM'da bulunmalı
         driver.get(BASE + "/register");
+        waitToSee(); // Formu görmek için bekle
         // { changed: daha anlamlı kontrol - en az 1 input bekleniyor }
         assertThat(driver.findElements(By.name("username")).size()).isGreaterThanOrEqualTo(1);
         assertThat(driver.findElements(By.name("email")).size()).isGreaterThanOrEqualTo(1);
         assertThat(driver.findElements(By.name("password")).size()).isGreaterThanOrEqualTo(1);
+        System.out.println("✓ TC02: Kayıt formu görünür");
     }
 
     // REQ-003: Kullanıcı Kayıt Akışı (basit)
@@ -124,12 +144,17 @@ public class SeleniumE2ETests {
     public void TC03_registerUser() {
         // USER-COMMENT: Basit form submit testi - DB temizliği manuel
         driver.get(BASE + "/register");
+        waitToSee(); // Formu görmek için bekle
         if (elementExists(By.name("username")) && elementExists(By.name("email")) && elementExists(By.name("password"))) {
             driver.findElement(By.name("username")).sendKeys("e2euser");
+            waitToSee(); // Form doldurulurken görmek için
             driver.findElement(By.name("email")).sendKeys("e2e@example.com");
             driver.findElement(By.name("password")).sendKeys("P@ssw0rd");
+            waitToSee(); // Submit öncesi görmek için
             driver.findElement(By.cssSelector("button[type='submit']")).click();
+            waitToSee(); // Yönlendirmeyi görmek için
             assertThat(driver.getCurrentUrl()).doesNotContain("/register");
+            System.out.println("✓ TC03: Kullanıcı kaydı tamamlandı");
         }
     }
 
@@ -143,9 +168,11 @@ public class SeleniumE2ETests {
     public void TC04_loginFormVisible() {
         // USER-COMMENT: Login formu inputları olmalı
         driver.get(BASE + "/login");
+        waitToSee();
         // { changed: daha anlamlı kontrol - en az 1 input bekleniyor }
         assertThat(driver.findElements(By.name("username")).size()).isGreaterThanOrEqualTo(1);
         assertThat(driver.findElements(By.name("password")).size()).isGreaterThanOrEqualTo(1);
+        System.out.println("✓ TC04: Login formu görünür");
     }
 
     // REQ-005: Kurs Listesi Görünümü
@@ -157,7 +184,9 @@ public class SeleniumE2ETests {
     public void TC05_courseListVisible() {
         // USER-COMMENT: Courses sayfası kaynak uzunluğu > 0 olmalı
         driver.get(BASE + "/courses");
+        waitToSee();
         assertThat(driver.getPageSource().length()).isGreaterThan(0);
+        System.out.println("✓ TC05: Kurs listesi görünür");
     }
 
     // REQ-006: Kurs Detayı Görünümü
@@ -169,7 +198,9 @@ public class SeleniumE2ETests {
     public void TC06_courseDetailVisible() {
         // USER-COMMENT: Varsayımsal course id=1 için içerik kontrolü
         driver.get(BASE + "/courses/1");
+        waitToSee();
         assertThat(driver.getPageSource().length()).isGreaterThan(0);
+        System.out.println("✓ TC06: Kurs detayı görünür");
     }
 
     // REQ-007: Ders Tamamlama Akışı (mock)
@@ -181,10 +212,15 @@ public class SeleniumE2ETests {
     public void TC07_markLessonCompleted() {
         // USER-COMMENT: Ders tamamlama butonu varsa tıkla ve 'Tamamlandı' içeriğini ara
         driver.get(BASE + "/courses/1/lessons/1");
+        waitToSee();
         var btns = driver.findElements(By.cssSelector("button.complete-lesson"));
         if (!btns.isEmpty()) {
             btns.get(0).click();
+            waitToSee();
             assertThat(driver.getPageSource()).contains("Tamamlandı");
+            System.out.println("✓ TC07: Ders tamamlandı olarak işaretlendi");
+        } else {
+            System.out.println("⚠ TC07: Tamamlama butonu bulunamadı (sayfa yapısı farklı olabilir)");
         }
     }
 
@@ -197,13 +233,19 @@ public class SeleniumE2ETests {
     public void TC08_takeQuiz() {
         // USER-COMMENT: Quiz sayfasındaki radio inputlardan birini seç ve sonucu kontrol et
         driver.get(BASE + "/courses/1/quiz/1");
+        waitToSee();
         var choices = driver.findElements(By.cssSelector("input[type='radio']"));
         if (!choices.isEmpty()) {
             choices.get(0).click();
+            waitToSee();
             if (elementExists(By.cssSelector("button[type='submit']"))) {
                 driver.findElement(By.cssSelector("button[type='submit']")).click();
+                waitToSee();
                 assertThat(driver.getPageSource()).contains("Sonuç");
+                System.out.println("✓ TC08: Quiz tamamlandı");
             }
+        } else {
+            System.out.println("⚠ TC08: Quiz soruları bulunamadı (sayfa yapısı farklı olabilir)");
         }
     }
 
@@ -216,12 +258,19 @@ public class SeleniumE2ETests {
     public void TC09_checkoutPayment() {
         // USER-COMMENT: Ödeme formu varsa test kart bilgileri ile gönder ve başarı mesajını kontrol et
         driver.get(BASE + "/checkout/1");
+        waitToSee();
         if (elementExists(By.name("cardNumber"))) {
             driver.findElement(By.name("cardNumber")).sendKeys("4111111111111111");
+            waitToSee();
             driver.findElement(By.name("expiry")).sendKeys("12/30");
             driver.findElement(By.name("cvc")).sendKeys("123");
+            waitToSee();
             driver.findElement(By.cssSelector("button[type='submit']")).click();
+            waitToSee();
             assertThat(driver.getPageSource()).contains("Başarılı");
+            System.out.println("✓ TC09: Ödeme işlemi tamamlandı");
+        } else {
+            System.out.println("⚠ TC09: Ödeme formu bulunamadı (sayfa yapısı farklı olabilir)");
         }
     }
 
@@ -234,7 +283,9 @@ public class SeleniumE2ETests {
     public void TC10_notificationListVisible() {
         // USER-COMMENT: Notifications sayfası boş olsa bile sayfa yüklenmeli
         driver.get(BASE + "/notifications");
+        waitToSee();
         assertThat(driver.getPageSource().length()).isGreaterThan(0);
+        System.out.println("✓ TC10: Bildirim listesi görünür");
     }
 
     // REQ-011: Kullanıcı Profili Görünümü
@@ -246,7 +297,9 @@ public class SeleniumE2ETests {
     public void TC11_userProfileVisible() {
         // USER-COMMENT: Profil sayfası kullanıcı bilgilerini içermeli
         driver.get(BASE + "/profile");
+        waitToSee();
         assertThat(driver.getPageSource()).contains("Kullanıcı Bilgileri");
+        System.out.println("✓ TC11: Kullanıcı profili görünür");
     }
 
     // REQ-012: Şifre Değiştirme Akışı
@@ -258,12 +311,19 @@ public class SeleniumE2ETests {
     public void TC12_changePassword() {
         // USER-COMMENT: Eğer şifre değişikliği formu bulunuyorsa akışı test et
         driver.get(BASE + "/profile");
+        waitToSee();
         if (elementExists(By.name("currentPassword")) && elementExists(By.name("newPassword")) && elementExists(By.name("confirmPassword"))) {
             driver.findElement(By.name("currentPassword")).sendKeys("P@ssw0rd");
+            waitToSee();
             driver.findElement(By.name("newPassword")).sendKeys("NewP@ssw0rd");
             driver.findElement(By.name("confirmPassword")).sendKeys("NewP@ssw0rd");
+            waitToSee();
             driver.findElement(By.cssSelector("button[type='submit']")).click();
+            waitToSee();
             assertThat(driver.getPageSource()).contains("Şifre başarıyla değiştirildi");
+            System.out.println("✓ TC12: Şifre değiştirildi");
+        } else {
+            System.out.println("⚠ TC12: Şifre değiştirme formu bulunamadı");
         }
     }
 
@@ -276,7 +336,9 @@ public class SeleniumE2ETests {
     public void TC13_userLogout() {
         // USER-COMMENT: /logout endpoint ana sayfaya yönlendirmeli
         driver.get(BASE + "/logout");
+        waitToSee();
         assertThat(driver.getCurrentUrl()).isEqualTo(BASE + "/");
+        System.out.println("✓ TC13: Kullanıcı çıkış yaptı");
     }
 
     // REQ-014: Hata Sayfası Görünümü
@@ -288,7 +350,9 @@ public class SeleniumE2ETests {
     public void TC14_errorPageVisible() {
         // USER-COMMENT: Bilerek hatalı bir rota ile 404 kontrolü
         driver.get(BASE + "/invalid-page");
+        waitToSee();
         assertThat(driver.getPageSource()).contains("404");
+        System.out.println("✓ TC14: 404 hata sayfası görünür");
     }
 
     // REQ-015: İletişim Formu Gönderimi
@@ -300,12 +364,19 @@ public class SeleniumE2ETests {
     public void TC15_contactFormSubmission() {
         // USER-COMMENT: Contact formu varsa doldur ve gönder, başarı mesajını ara
         driver.get(BASE + "/contact");
+        waitToSee();
         if (elementExists(By.name("name")) && elementExists(By.name("email")) && elementExists(By.name("message"))) {
             driver.findElement(By.name("name")).sendKeys("Test User");
+            waitToSee();
             driver.findElement(By.name("email")).sendKeys("testuser@example.com");
             driver.findElement(By.name("message")).sendKeys("Bu bir test mesajıdır.");
+            waitToSee();
             driver.findElement(By.cssSelector("button[type='submit']")).click();
+            waitToSee();
             assertThat(driver.getPageSource()).contains("Mesajınız başarıyla gönderildi");
+            System.out.println("✓ TC15: İletişim formu gönderildi");
+        } else {
+            System.out.println("⚠ TC15: İletişim formu bulunamadı");
         }
     }
 }

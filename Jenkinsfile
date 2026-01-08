@@ -167,8 +167,8 @@ pipeline {
                             echo "🔍 E2E test dosyaları aranıyor..."
                             find src/test -name "*E2E*.java" || echo "Test dosyası bulunamadı"
 
-                            echo "🚀 Selenium testleri çalıştırılıyor..."
-                            ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=true -Dsurefire.failIfNoSpecifiedTests=false || true
+                            echo "🚀 Selenium testleri çalıştırılıyor (headless=false)..."
+                            ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=false -Dsurefire.failIfNoSpecifiedTests=false || true
                         '''
                         echo '✅ Selenium testleri tamamlandı!'
                     } catch (Exception e) {
