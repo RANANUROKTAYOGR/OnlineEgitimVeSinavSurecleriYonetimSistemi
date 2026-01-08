@@ -112,34 +112,7 @@ pipeline {
             }
         }
 
-        stage('🌐 Selenium E2E Testleri') {
-            steps {
-                echo '🌐 Running Selenium E2E Tests...'
-                script {
-                    try {
-                        echo '📍 Selenium test dosyaları kontrol ediliyor...'
 
-                        // Selenium testlerini çalıştır (Chrome headless modda)
-                        sh '''
-                            echo "🔍 E2E test dosyaları aranıyor..."
-                            find src/test -name "*E2E*.java" || echo "Test dosyası bulunamadı"
-
-                            echo "🚀 Selenium testleri çalıştırılıyor..."
-                            ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=true -Dsurefire.failIfNoSpecifiedTests=false || true
-                        '''
-                        echo '✅ Selenium testleri tamamlandı!'
-                    } catch (Exception e) {
-                        currentBuild.result = 'UNSTABLE'
-                        echo "⚠️ Selenium testleri ile ilgili uyarı: ${e.message}"
-                    }
-                }
-            }
-            post {
-                always {
-                    junit testResults: '**/target/surefire-reports/TEST-*E2E*.xml', allowEmptyResults: true
-                }
-            }
-        }
 
         stage('📊 Test Coverage Raporu') {
             steps {
@@ -200,6 +173,34 @@ pipeline {
             }
         }
     }
+    stage('🌐 Selenium E2E Testleri') {
+                steps {
+                    echo '🌐 Running Selenium E2E Tests...'
+                    script {
+                        try {
+                            echo '📍 Selenium test dosyaları kontrol ediliyor...'
+
+                            // Selenium testlerini çalıştır (Chrome headless modda)
+                            sh '''
+                                echo "🔍 E2E test dosyaları aranıyor..."
+                                find src/test -name "*E2E*.java" || echo "Test dosyası bulunamadı"
+
+                                echo "🚀 Selenium testleri çalıştırılıyor..."
+                                ./mvnw test -Dtest=SeleniumE2ETests -De2e.headless=true -Dsurefire.failIfNoSpecifiedTests=false || true
+                            '''
+                            echo '✅ Selenium testleri tamamlandı!'
+                        } catch (Exception e) {
+                            currentBuild.result = 'UNSTABLE'
+                            echo "⚠️ Selenium testleri ile ilgili uyarı: ${e.message}"
+                        }
+                    }
+                }
+                post {
+                    always {
+                        junit testResults: '**/target/surefire-reports/TEST-*E2E*.xml', allowEmptyResults: true
+                    }
+                }
+            }
 
     post {
         always {
